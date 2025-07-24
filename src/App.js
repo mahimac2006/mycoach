@@ -8,12 +8,17 @@ import ProgressChart from "./ProgressChart";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Hello world, this is my AI running coach website!</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/chat" element={<ChatCoach />} />
+        <Route path="/progress" element={<ProgressChart />} />
+      </Routes>
+    </Router>
   );
 }
-
 
 export default App;
 
