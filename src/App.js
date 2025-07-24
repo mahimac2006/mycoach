@@ -9,7 +9,7 @@ import ProgressChart from "./ProgressChart";
 function App() {
   return (
     <div className="App">
-      <h1>Hello world, this is my AI running coach app!</h1>
+      <h1>Hello world, this is my AI running coach website!</h1>
     </div>
   );
 }
@@ -17,5 +17,4 @@ function App() {
 
 export default App;
 
-// trigger vercel redeploy
-// trigger deploy
+
