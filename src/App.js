@@ -7,14 +7,11 @@ import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
 
 function App() {
+  console.log("App rendered");
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/chat" element={<ChatCoach />} />
-        <Route path="/progress" element={<ProgressChart />} />
       </Routes>
     </Router>
   );
