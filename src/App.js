@@ -1,20 +1,18 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Signup from "./Signup";
-import Login from "./Login";
+import Auth from "./Auth"; // this combines Login + Signup
+import onboarding from "./onboarding";
 import Dashboard from "./Dashboard";
 import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
-import Onboarding from "./onboarding";
-import TrainingPlan from "./TrainingPlan.js"; 
-import Auth from "./Auth.js";
+import TrainingPlan from "./TrainingPlan";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Auth />} /> 
-        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/" element={<Auth />} />
+        <Route path="/onboarding" element={<onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/chat" element={<ChatCoach />} />
         <Route path="/progress" element={<ProgressChart />} />
@@ -25,5 +23,6 @@ function App() {
 }
 
 export default App;
+
 
 
