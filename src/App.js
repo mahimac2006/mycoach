@@ -6,14 +6,14 @@ import Dashboard from "./Dashboard";
 import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
 import Onboarding from "./onboarding";
-import TrainingPlan from "./TrainingPlan"; 
+import TrainingPlan from "./TrainingPlan.js"; 
+import Auth from "./Auth.js";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<Auth />} /> 
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/chat" element={<ChatCoach />} />
