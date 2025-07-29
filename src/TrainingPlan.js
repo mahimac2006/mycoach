@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
-import Navbar from "./Navbar";
+import Navbar from "./Navigation";
 
 function TrainingPlan() {
   const [plan, setPlan] = useState("");

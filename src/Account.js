@@ -3,7 +3,7 @@ import { signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvide
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "./Navigation";
 
 function Account() {
   const [userProfile, setUserProfile] = useState(null);

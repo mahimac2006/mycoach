@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { addDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db, auth } from "./firebase";
-import Navbar from "./Navbar";
+import Navigation from "./Navigation"; // Changed from Navbar to Navigation
 
 function Dashboard() {
   const [distance, setDistance] = useState("");
@@ -27,7 +27,7 @@ function Dashboard() {
       querySnapshot.forEach((doc) => {
         runs.push({ id: doc.id, ...doc.data() });
       });
-      setRecentRuns(runs.slice(0, 5)); // Show last 5 runs
+      setRecentRuns(runs.slice(0, 5));
     } catch (error) {
       console.error("Error fetching runs:", error);
     }
@@ -51,14 +51,10 @@ function Dashboard() {
         timestamp: new Date()
       });
       
-      // Clear form
       setDistance("");
       setDuration("");
       setMood("happy");
-      
-      // Refresh recent runs
       await fetchRecentRuns();
-      
       alert("Run logged successfully!");
     } catch (error) {
       console.error("Error logging run:", error);
@@ -114,7 +110,7 @@ function Dashboard() {
 
   return (
     <div>
-      <Navbar />
+      <Navigation />
       <div style={containerStyle}>
         <h2>Log Your Run</h2>
         <form onSubmit={handleSubmit} style={formStyle}>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import { getGPTReply } from "./gpt";
-import Navbar from "./Navbar";
+import Navbar from "./Navigation";
 
 function ChatCoach() {
   const [messages, setMessages] = useState([]);
