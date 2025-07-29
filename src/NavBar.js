@@ -13,7 +13,6 @@ function Navbar() {
     borderBottom: "1px solid #ddd"
   };
 
-  
   const linkStyle = {
     textDecoration: "none",
     padding: "10px 15px",
