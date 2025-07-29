@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import Auth from "./Auth";
-import Onboarding from "./Onboarding"; // Fixed capitalization
+import Onboarding from "./onboarding"; // Fixed capitalization
 import Dashboard from "./Dashboard";
 import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
