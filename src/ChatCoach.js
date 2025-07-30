@@ -2,16 +2,21 @@ import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import { getGPTReply } from "./gpt";
-import Navbar from "./Navigation";
+import Navigation from "./Navigation"; // Updated import
 
 function ChatCoach() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [apiKeyMissing, setApiKeyMissing] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
+    // Check if API key is available
+    if (!process.env.REACT_APP_OPENAI_API_KEY) {
+      setApiKeyMissing(true);
+    }
   }, []);
 
   const fetchUserProfile = async () => {
@@ -42,6 +47,11 @@ function ChatCoach() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    if (apiKeyMissing) {
+      alert("OpenAI API key is not configured. Please set up your API key to use the chat feature.");
+      return;
+    }
+
     const userMessage = { role: "user", content: input };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
@@ -53,9 +63,20 @@ function ChatCoach() {
       setMessages([...updatedMessages, { role: "assistant", content: reply }]);
     } catch (error) {
       console.error("Error getting coach reply:", error);
+      let errorMessage = "Sorry, I'm having trouble responding right now. Please try again in a moment!";
+      
+      // More specific error messages
+      if (error.message.includes("401") || error.message.includes("authentication")) {
+        errorMessage = "API key issue - please check your OpenAI API key configuration.";
+      } else if (error.message.includes("429")) {
+        errorMessage = "Too many requests - please wait a moment before trying again.";
+      } else if (error.message.includes("quota")) {
+        errorMessage = "API quota exceeded - please check your OpenAI account billing.";
+      }
+      
       setMessages([...updatedMessages, { 
         role: "assistant", 
-        content: "Sorry, I'm having trouble responding right now. Please try again in a moment!" 
+        content: errorMessage
       }]);
     } finally {
       setLoading(false);
@@ -119,9 +140,32 @@ function ChatCoach() {
     cursor: loading ? "not-allowed" : "pointer"
   };
 
+  if (apiKeyMissing) {
+    return (
+      <div>
+        <Navigation />
+        <div style={containerStyle}>
+          <h2>Chat with Your Coach</h2>
+          <div style={{ 
+            padding: "20px", 
+            backgroundColor: "#fff3cd", 
+            border: "1px solid #ffeaa7", 
+            borderRadius: "10px",
+            textAlign: "center"
+          }}>
+            <h3>⚠️ API Key Required</h3>
+            <p>To use the chat feature, you need to set up your OpenAI API key.</p>
+            <p>Add <code>REACT_APP_OPENAI_API_KEY=your_key_here</code> to your .env file</p>
+            <p>Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a></p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Navbar />
+      <Navigation />
       <div style={containerStyle}>
         <h2>Chat with {userProfile?.coachName || "Your Coach"}</h2>
         
