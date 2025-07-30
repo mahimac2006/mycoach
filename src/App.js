@@ -1,22 +1,37 @@
+
+import Onboarding from "./onboarding"; 
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "./firebase";
 import Auth from "./Auth";
-import Onboarding from "./onboarding"; // Fixed capitalization
 import Dashboard from "./Dashboard";
 import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
 import TrainingPlan from "./TrainingPlan";
-import Account from "./Account"; // New component
+import Account from "./Account";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      
+      if (user) {
+        // Check if user has completed onboarding
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          setHasCompletedOnboarding(userDoc.exists());
+        } catch (error) {
+          console.error("Error checking onboarding status:", error);
+          setHasCompletedOnboarding(false);
+        }
+      }
+      
       setLoading(false);
     });
 
@@ -27,11 +42,23 @@ function App() {
     return <div style={{ textAlign: "center", paddingTop: "50px" }}>Loading...</div>;
   }
 
+  // If user is logged in but hasn't completed onboarding, redirect to onboarding
+  if (user && !hasCompletedOnboarding) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/onboarding" element={<onboarding />} />
+          <Route path="*" element={<Navigate to="/onboarding" />} />
+        </Routes>
+      </Router>
+    );
+  }
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Auth />} />
-        <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/" />} />
+        <Route path="/onboarding" element={user ? <onboarding /> : <Navigate to="/" />} />
         <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
         <Route path="/chat" element={user ? <ChatCoach /> : <Navigate to="/" />} />
         <Route path="/progress" element={user ? <ProgressChart /> : <Navigate to="/" />} />
@@ -43,6 +70,5 @@ function App() {
 }
 
 export default App;
-
 
 

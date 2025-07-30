@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { addDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db, auth } from "./firebase";
-import Navigation from "./Navigation"; // Changed from Navbar to Navigation
+import Navigation from "./Navigation";
 
 function Dashboard() {
   const [distance, setDistance] = useState("");
@@ -9,27 +9,53 @@ function Dashboard() {
   const [mood, setMood] = useState("happy");
   const [recentRuns, setRecentRuns] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingRuns, setFetchingRuns] = useState(true);
 
   useEffect(() => {
     fetchRecentRuns();
   }, []);
 
   const fetchRecentRuns = async () => {
+    setFetchingRuns(true);
     try {
       const runsRef = collection(db, "runs");
-      const q = query(
-        runsRef, 
-        where("userId", "==", auth.currentUser.uid),
-        orderBy("date", "desc")
-      );
-      const querySnapshot = await getDocs(q);
-      const runs = [];
-      querySnapshot.forEach((doc) => {
-        runs.push({ id: doc.id, ...doc.data() });
-      });
-      setRecentRuns(runs.slice(0, 5));
+      
+      // Try with orderBy first
+      try {
+        const q = query(
+          runsRef, 
+          where("userId", "==", auth.currentUser.uid),
+          orderBy("date", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        const runs = [];
+        querySnapshot.forEach((doc) => {
+          runs.push({ id: doc.id, ...doc.data() });
+        });
+        setRecentRuns(runs.slice(0, 5));
+      } catch (orderByError) {
+        console.log("OrderBy failed, trying without orderBy:", orderByError);
+        
+        // Fallback: query without orderBy and sort manually
+        const simpleQ = query(
+          runsRef, 
+          where("userId", "==", auth.currentUser.uid)
+        );
+        const querySnapshot = await getDocs(simpleQ);
+        const runs = [];
+        querySnapshot.forEach((doc) => {
+          runs.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Sort manually by date
+        runs.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setRecentRuns(runs.slice(0, 5));
+      }
     } catch (error) {
       console.error("Error fetching runs:", error);
+      alert("Error loading runs. Check console for details.");
+    } finally {
+      setFetchingRuns(false);
     }
   };
 
@@ -42,23 +68,31 @@ function Dashboard() {
 
     setLoading(true);
     try {
-      await addDoc(collection(db, "runs"), {
+      const runData = {
         userId: auth.currentUser.uid,
         date: new Date().toISOString().split("T")[0],
         distance: parseFloat(distance),
         duration: parseInt(duration),
         mood,
         timestamp: new Date()
-      });
+      };
       
+      console.log("Adding run:", runData); // Debug log
+      
+      await addDoc(collection(db, "runs"), runData);
+      
+      // Clear form
       setDistance("");
       setDuration("");
       setMood("happy");
+      
+      // Refresh recent runs
       await fetchRecentRuns();
+      
       alert("Run logged successfully!");
     } catch (error) {
       console.error("Error logging run:", error);
-      alert("Error logging run. Please try again.");
+      alert("Error logging run: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -148,7 +182,9 @@ function Dashboard() {
         </form>
 
         <h3>Recent Runs</h3>
-        {recentRuns.length > 0 ? (
+        {fetchingRuns ? (
+          <p style={{ textAlign: "center", color: "#666" }}>Loading runs...</p>
+        ) : recentRuns.length > 0 ? (
           <div>
             {recentRuns.map((run) => (
               <div key={run.id} style={runItemStyle}>
@@ -166,10 +202,18 @@ function Dashboard() {
             ))}
           </div>
         ) : (
-          <p style={{ textAlign: "center", color: "#666" }}>
-            No runs logged yet. Log your first run above!
-          </p>
+          <div style={{ textAlign: "center", color: "#666", padding: "20px" }}>
+            <p>No runs logged yet. Log your first run above!</p>
+            <p><small>If you just logged a run and don't see it, check the browser console for errors.</small></p>
+          </div>
         )}
+
+        {/* Debug info */}
+        <div style={{ marginTop: "20px", padding: "10px", backgroundColor: "#f8f9fa", fontSize: "12px" }}>
+          <strong>Debug Info:</strong>
+          <br />Current User: {auth.currentUser?.uid}
+          <br />Total Runs Found: {recentRuns.length}
+        </div>
       </div>
     </div>
   );
