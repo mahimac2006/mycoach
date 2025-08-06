@@ -7,7 +7,7 @@ import { auth, db } from "./firebase";
 import Auth from "./Auth";
 import Dashboard from "./Dashboard";
 import ChatCoach from "./ChatCoach";
-import UserSetupg from "./UserSetup"; 
+import UserSetup from "./UserSetup"; 
 import ProgressChart from "./ProgressChart";
 import TrainingPlan from "./TrainingPlan";
 import Account from "./Account";
