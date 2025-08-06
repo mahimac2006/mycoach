@@ -28,7 +28,7 @@ function TrainingPlan() {
         setPlan(planData.planText);
         setCompletedDays(planData.completedDays || []);
       } else {
-        setPlan("No training plan found. Complete onboarding to get your personalized plan!");
+        setPlan("No training plan found. Complete UserSetup to get your personalized plan!");
       }
 
       if (userSnap.exists()) {

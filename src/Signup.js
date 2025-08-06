@@ -24,8 +24,8 @@ function Signup() {
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       console.log("Signed up:", userCred.user);
-      // Redirect new users to onboarding instead of dashboard
-      navigate("/onboarding"); 
+      // Redirect new users to UserSetup instead of dashboard
+      navigate("/UserSetup"); 
     } catch (error) {
       console.error("Signup error:", error);
       alert(error.message);

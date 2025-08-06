@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
-import { generatePlan } from "./generatePlan";
 
-function Onboarding() {
+function UserSetup() {
   const [form, setForm] = useState({
     age: "",
     experience: "",
@@ -18,41 +17,60 @@ function Onboarding() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     const user = auth.currentUser;
-    if (user) {
-      try {
-        // Generate the AI training plan
-        const trainingPlan = await generatePlan(form);
+    if (!user) {
+      alert("No user logged in");
+      setLoading(false);
+      return;
+    }
 
-        // Store user profile and training plan
-        await setDoc(doc(db, "users", user.uid), {
-          ...form,
-          createdAt: new Date().toISOString()
-        });
+    try {
+      console.log("Saving user profile...");
+      
+      // Save user profile
+      await setDoc(doc(db, "users", user.uid), {
+        ...form,
+        createdAt: new Date().toISOString()
+      });
 
-        // Store training plan separately for easier access
-        await setDoc(doc(db, "trainingPlans", user.uid), {
-          planText: trainingPlan,
-          createdAt: new Date().toISOString(),
-          completedDays: [] // Track completed days
-        });
+      // Create a simple training plan for now
+      const basicPlan = `Welcome ${form.coachName ? `to training with ${form.coachName}` : 'to your training plan'}!
+      
+Here's your ${form.experience} level plan for: ${form.goal}
 
-        navigate("/dashboard");
-      } catch (err) {
-        console.error("Error during onboarding:", err);
-        alert("There was a problem generating your plan. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+Monday: Rest day
+Tuesday: Easy 20-30 minute run
+Wednesday: Cross training or rest
+Thursday: Easy 20-30 minute run  
+Friday: Rest day
+Saturday: Longer run (30-45 minutes)
+Sunday: Rest or easy walk
+
+Remember to listen to your body and adjust as needed!`;
+
+      // Save training plan
+      await setDoc(doc(db, "trainingPlans", user.uid), {
+        planText: basicPlan,
+        createdAt: new Date().toISOString(),
+        completedDays: []
+      });
+
+      console.log("Profile and plan saved successfully");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error during setup:", error);
+      alert("Error setting up your account: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formStyle = {
+  const containerStyle = {
     maxWidth: "500px",
     margin: "50px auto",
     padding: "30px",
@@ -67,7 +85,8 @@ function Onboarding() {
     margin: "10px 0",
     border: "1px solid #ccc",
     borderRadius: "5px",
-    fontSize: "16px"
+    fontSize: "16px",
+    boxSizing: "border-box"
   };
 
   const buttonStyle = {
@@ -82,14 +101,16 @@ function Onboarding() {
   };
 
   return (
-    <div style={formStyle}>
+    <div style={containerStyle}>
+      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
+        Tell us about yourself!
+      </h2>
+      
       <form onSubmit={handleSubmit}>
-        <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Tell us about yourself!</h2>
-        
         <input 
           name="age" 
           type="number"
-          placeholder="Age" 
+          placeholder="Your age" 
           value={form.age}
           onChange={handleChange} 
           style={inputStyle}
@@ -111,7 +132,7 @@ function Onboarding() {
         
         <input 
           name="goal" 
-          placeholder="Running Goal (e.g., run a 5K, lose weight, marathon)" 
+          placeholder="Running goal (e.g., run a 5K, lose weight, marathon)" 
           value={form.goal}
           onChange={handleChange} 
           style={inputStyle}
@@ -142,11 +163,11 @@ function Onboarding() {
         />
 
         <button type="submit" disabled={loading} style={buttonStyle}>
-          {loading ? "Generating Your Personalized Plan..." : "Start Training"}
+          {loading ? "Setting up your account..." : "Start Training!"}
         </button>
       </form>
     </div>
   );
 }
 
-export default Onboarding;
+export default UserSetup;
