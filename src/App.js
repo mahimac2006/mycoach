@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -11,7 +11,7 @@ import ProgressChart from "./ProgressChart";
 import TrainingPlan from "./TrainingPlan";
 import Account from "./Account";
 
-// Enhanced onboarding component with better redirect
+// Enhanced onboarding component
 function SimpleOnboarding() {
   const [form, setForm] = useState({
     age: "",
@@ -30,12 +30,9 @@ function SimpleOnboarding() {
     setError("");
     
     console.log("Form submission started");
-    console.log("Form data:", form);
     
     try {
       const user = auth.currentUser;
-      console.log("Current user:", user?.uid);
-      
       if (!user) {
         throw new Error("No user logged in");
       }
@@ -45,10 +42,9 @@ function SimpleOnboarding() {
       // Save user profile
       await setDoc(doc(db, "users", user.uid), {
         ...form,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        onboardingCompleted: true // Add this flag
       });
-
-      console.log("User profile saved successfully");
 
       // Create basic training plan
       const basicPlan = `Welcome ${form.coachName}! Here's your personalized ${form.experience} level plan for: ${form.goal}
@@ -63,19 +59,16 @@ Sunday: Rest or easy walk
 
 Remember to listen to your body and adjust as needed. You've got this! 🏃‍♀️`;
 
-      console.log("Saving training plan...");
-
       await setDoc(doc(db, "trainingPlans", user.uid), {
         planText: basicPlan,
         createdAt: new Date().toISOString(),
         completedDays: []
       });
 
-      console.log("Training plan saved successfully");
-      console.log("Redirecting to dashboard...");
+      console.log("Profile and plan saved successfully");
       
-      // Redirect to dashboard
-      navigate("/dashboard");
+      // Force a page refresh to update the auth state
+      window.location.href = "/dashboard";
       
     } catch (error) {
       console.error("Error during onboarding:", error);
@@ -87,7 +80,7 @@ Remember to listen to your body and adjust as needed. You've got this! 🏃‍�
 
   return (
     <div style={{ maxWidth: "500px", margin: "50px auto", padding: "30px", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#f9f9f9" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Tell us about yourself!</h2>
+      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Welcome! Let's set up your training 🏃‍♀️</h2>
       
       {error && (
         <div style={{ 
@@ -160,7 +153,7 @@ Remember to listen to your body and adjust as needed. You've got this! 🏃‍�
           style={{ 
             width: "100%", 
             padding: "15px", 
-            backgroundColor: loading ? "#ccc" : "#007bff", 
+            backgroundColor: loading ? "#ccc" : "#28a745", 
             color: "white", 
             border: "none", 
             borderRadius: "5px",
@@ -168,16 +161,9 @@ Remember to listen to your body and adjust as needed. You've got this! 🏃‍�
             cursor: loading ? "not-allowed" : "pointer"
           }}
         >
-          {loading ? "Setting up your account..." : "Start Training!"}
+          {loading ? "Setting up your account..." : "Let's Start Training! 🚀"}
         </button>
       </form>
-      
-      {/* Debug info */}
-      <div style={{ marginTop: "20px", fontSize: "12px", color: "#666" }}>
-        <strong>Debug Info:</strong><br />
-        Current User: {auth.currentUser?.uid || "Not logged in"}<br />
-        Form filled: {form.age && form.goal && form.coachName ? "Yes" : "No"}
-      </div>
     </div>
   );
 }
@@ -186,7 +172,6 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -195,22 +180,29 @@ function App() {
       
       if (user) {
         try {
+          // Check if user has completed onboarding
           const userDoc = await getDoc(doc(db, "users", user.uid));
-          const completed = userDoc.exists();
-          console.log("Onboarding completed:", completed);
-          setHasCompletedOnboarding(completed);
           
-          // Check if this is a new signup vs existing login
-          // We can't perfectly detect this, but if they have no profile, they're likely new
-          setIsNewUser(!completed);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            console.log("User data found:", userData);
+            
+            // Check for onboarding completion
+            const completed = userData.onboardingCompleted === true || 
+                            (userData.age && userData.goal && userData.coachName); // Fallback check
+            
+            console.log("Onboarding completed:", completed);
+            setHasCompletedOnboarding(completed);
+          } else {
+            console.log("No user document found - needs onboarding");
+            setHasCompletedOnboarding(false);
+          }
         } catch (error) {
           console.error("Error checking onboarding status:", error);
           setHasCompletedOnboarding(false);
-          setIsNewUser(true);
         }
       } else {
         setHasCompletedOnboarding(false);
-        setIsNewUser(false);
       }
       
       setLoading(false);
@@ -219,49 +211,76 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // Show loading while checking auth state
   if (loading) {
-    return <div style={{ textAlign: "center", paddingTop: "50px" }}>Loading...</div>;
-  }
-
-  // If user is not logged in, show auth
-  if (!user) {
     return (
-      <Router>
-        <Routes>
-          <Route path="*" element={<Auth />} />
-        </Routes>
-      </Router>
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        flexDirection: "column",
+        gap: "20px"
+      }}>
+        <div style={{ fontSize: "18px" }}>Loading your running coach...</div>
+        <div style={{ fontSize: "14px", color: "#666" }}>🏃‍♀️ Getting ready for your training!</div>
+      </div>
     );
   }
 
-  // If user is logged in but hasn't completed onboarding, show onboarding
-  if (user && !hasCompletedOnboarding) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/onboarding" element={<SimpleOnboarding />} />
-          <Route path="*" element={<Navigate to="/onboarding" />} />
-        </Routes>
-      </Router>
-    );
-  }
-
-  // User is logged in and has completed onboarding
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="/onboarding" element={<SimpleOnboarding />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/chat" element={<ChatCoach />} />
-        <Route path="/progress" element={<ProgressChart />} />
-        <Route path="/training-plan" element={<TrainingPlan />} />
-        <Route path="/account" element={<Account />} />
+        {/* If no user, show auth */}
+        <Route path="/" element={
+          !user ? <Auth /> : 
+          hasCompletedOnboarding ? <Navigate to="/dashboard" /> : 
+          <Navigate to="/onboarding" />
+        } />
+        
+        {/* Onboarding route */}
+        <Route path="/onboarding" element={
+          !user ? <Navigate to="/" /> : 
+          hasCompletedOnboarding ? <Navigate to="/dashboard" /> :
+          <SimpleOnboarding />
+        } />
+        
+        {/* Protected routes - require auth and completed onboarding */}
+        <Route path="/dashboard" element={
+          !user ? <Navigate to="/" /> :
+          !hasCompletedOnboarding ? <Navigate to="/onboarding" /> :
+          <Dashboard />
+        } />
+        
+        <Route path="/chat" element={
+          !user ? <Navigate to="/" /> :
+          !hasCompletedOnboarding ? <Navigate to="/onboarding" /> :
+          <ChatCoach />
+        } />
+        
+        <Route path="/progress" element={
+          !user ? <Navigate to="/" /> :
+          !hasCompletedOnboarding ? <Navigate to="/onboarding" /> :
+          <ProgressChart />
+        } />
+        
+        <Route path="/training-plan" element={
+          !user ? <Navigate to="/" /> :
+          !hasCompletedOnboarding ? <Navigate to="/onboarding" /> :
+          <TrainingPlan />
+        } />
+        
+        <Route path="/account" element={
+          !user ? <Navigate to="/" /> :
+          !hasCompletedOnboarding ? <Navigate to="/onboarding" /> :
+          <Account />
+        } />
+        
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
-
