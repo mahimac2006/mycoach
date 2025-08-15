@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
-import { getGPTReply } from "./gpt";
-import Navigation from "./Navigation"; // Updated import
+import { getGeminiReply } from "./gemini"; // Changed from gpt to gemini
+import Navigation from "./Navigation";
 
 function ChatCoach() {
   const [messages, setMessages] = useState([]);
@@ -13,8 +13,8 @@ function ChatCoach() {
 
   useEffect(() => {
     fetchUserProfile();
-    // Check if API key is available
-    if (!process.env.REACT_APP_OPENAI_API_KEY) {
+    // Check if Gemini API key is available
+    if (!process.env.REACT_APP_GEMINI_API_KEY) {
       setApiKeyMissing(true);
     }
   }, []);
@@ -48,7 +48,7 @@ function ChatCoach() {
     if (!input.trim()) return;
 
     if (apiKeyMissing) {
-      alert("OpenAI API key is not configured. Please set up your API key to use the chat feature.");
+      alert("Gemini API key is not configured. Please set up your API key to use the chat feature.");
       return;
     }
 
@@ -59,19 +59,17 @@ function ChatCoach() {
     setLoading(true);
 
     try {
-      const reply = await getGPTReply(updatedMessages);
+      const reply = await getGeminiReply(updatedMessages);
       setMessages([...updatedMessages, { role: "assistant", content: reply }]);
     } catch (error) {
       console.error("Error getting coach reply:", error);
       let errorMessage = "Sorry, I'm having trouble responding right now. Please try again in a moment!";
       
       // More specific error messages
-      if (error.message.includes("401") || error.message.includes("authentication")) {
-        errorMessage = "API key issue - please check your OpenAI API key configuration.";
-      } else if (error.message.includes("429")) {
-        errorMessage = "Too many requests - please wait a moment before trying again.";
-      } else if (error.message.includes("quota")) {
-        errorMessage = "API quota exceeded - please check your OpenAI account billing.";
+      if (error.message.includes("Too many requests")) {
+        errorMessage = "I'm getting lots of questions right now! Please wait 30 seconds and try again.";
+      } else if (error.message.includes("API key")) {
+        errorMessage = "There's an issue with my configuration. Please check back later!";
       }
       
       setMessages([...updatedMessages, { 
@@ -154,9 +152,9 @@ function ChatCoach() {
             textAlign: "center"
           }}>
             <h3>⚠️ API Key Required</h3>
-            <p>To use the chat feature, you need to set up your OpenAI API key.</p>
-            <p>Add <code>REACT_APP_OPENAI_API_KEY=your_key_here</code> to your .env file</p>
-            <p>Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a></p>
+            <p>To use the chat feature, you need to set up your Gemini API key.</p>
+            <p>Add <code>REACT_APP_GEMINI_API_KEY=your_key_here</code> to your environment variables</p>
+            <p>Get your free API key from: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a></p>
           </div>
         </div>
       </div>
@@ -167,7 +165,7 @@ function ChatCoach() {
     <div>
       <Navigation />
       <div style={containerStyle}>
-        <h2>Chat with {userProfile?.coachName || "Your Coach"}</h2>
+        <h2>Chat with {userProfile?.coachName || "Your Coach"} 🏃‍♀️</h2>
         
         <div style={chatContainerStyle}>
           {messages.slice(1).map((message, index) => ( // Skip system message
@@ -179,7 +177,7 @@ function ChatCoach() {
           {loading && (
             <div style={messageStyle("assistant")}>
               <strong>{userProfile?.coachName || "Coach"}:</strong>
-              <p style={{ margin: "5px 0 0 0" }}>Typing...</p>
+              <p style={{ margin: "5px 0 0 0" }}>Thinking... 🤔</p>
             </div>
           )}
         </div>
