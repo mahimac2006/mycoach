@@ -2,10 +2,12 @@ import axios from "axios";
 
 export const generatePlan = async (formData) => {
   try {
+    console.log("Generating training plan...");
+    
     const res = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4",
+        model: "gpt-3.5-turbo", // Changed from gpt-4 to gpt-3.5-turbo
         messages: [
           {
             role: "system",
@@ -32,14 +34,17 @@ export const generatePlan = async (formData) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`, // Fixed to match gpt.js
+          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
           "Content-Type": "application/json"
         }
       }
     );
+    
+    console.log("Training plan generated successfully");
     return res.data.choices[0].message.content;
   } catch (error) {
     console.error("Error generating training plan:", error);
+    console.error("Error response:", error.response?.data);
     throw new Error("Failed to generate training plan");
   }
 };
