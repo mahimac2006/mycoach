@@ -39,7 +39,15 @@ function Signup() {
       navigate("/onboarding");
     } catch (err) {
       console.error("Signup error:", err);
-      setError(err.message);
+      if (err.code === "auth/email-already-in-use") {
+        setError("An account with this email already exists");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password is too weak");
+      } else {
+        setError("Signup failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -86,8 +94,8 @@ function Signup() {
       <button 
         type="submit"
         disabled={loading}
-        className="btn btn-success btn-full"
-        style={{ marginTop: "10px" }}
+        className="btn btn-primary btn-full"
+        style={{ marginTop: "20px" }}
       >
         {loading ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>

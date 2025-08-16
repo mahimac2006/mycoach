@@ -70,9 +70,16 @@ I'll create a personalized weekly training plan for you right now in our chat. L
     <div className="auth-container">
       <div className="form-container">
         <div className="card-header">
-          <h2>Welcome! Let's set up your training 🏃‍♀️</h2>
-          <p style={{ margin: "10px 0 0 0", opacity: 0.8 }}>
-            Tell us about yourself to get a personalized plan
+          <h2 style={{
+            background: "linear-gradient(135deg, #ffffff, #60a5fa)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            Welcome to myCoach! 🏃‍♀️
+          </h2>
+          <p style={{ margin: "10px 0 0 0", color: "rgba(255, 255, 255, 0.8)" }}>
+            Tell us about yourself to get a personalized training plan
           </p>
         </div>
         
@@ -137,7 +144,7 @@ I'll create a personalized weekly training plan for you right now in our chat. L
           <button 
             type="submit" 
             disabled={loading}
-            className="btn btn-success btn-full"
+            className="btn btn-primary btn-full"
             style={{ marginTop: "20px" }}
           >
             {loading ? (

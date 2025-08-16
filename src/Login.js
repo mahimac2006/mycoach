@@ -27,7 +27,15 @@ function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message);
+      if (err.code === "auth/user-not-found") {
+        setError("No account found with this email");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect password");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address");
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,7 +73,7 @@ function Login() {
         type="submit"
         disabled={loading}
         className="btn btn-primary btn-full"
-        style={{ marginTop: "10px" }}
+        style={{ marginTop: "20px" }}
       >
         {loading ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>

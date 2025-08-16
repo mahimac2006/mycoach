@@ -5,30 +5,114 @@ import "./GlobalStyles.css";
 
 function Auth() {
   const [showLogin, setShowLogin] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
-  return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="card-header">
-          <h1 style={{ margin: 0, fontSize: "2rem" }}>🏃‍♀️ RunCoach AI</h1>
-          <p style={{ margin: "10px 0 0 0", fontSize: "1.1rem", opacity: 0.8 }}>
-            Your personal AI running coach
-          </p>
+  const handleShowLogin = () => {
+    setShowLogin(true);
+    setShowForm(true);
+  };
+
+  const handleShowSignup = () => {
+    setShowLogin(false);
+    setShowForm(true);
+  };
+
+  const handleBack = () => {
+    setShowForm(false);
+  };
+
+  if (!showForm) {
+    // Hero Landing Page
+    return (
+      <div className="auth-container">
+        <div className="auth-hero">
+          <h1>myCoach</h1>
+          <p>Personalized training plans with 24/7 AI coach support</p>
+          
+          <div className="auth-buttons">
+            <button 
+              className="btn btn-primary btn-large"
+              onClick={handleShowLogin}
+            >
+              Log In
+            </button>
+            <button 
+              className="btn btn-secondary btn-large"
+              onClick={handleShowSignup}
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
 
-        <div className="auth-tabs">
-          <div 
-            className={`auth-tab ${showLogin ? 'active' : ''}`}
-            onClick={() => setShowLogin(true)}
-          >
-            Log In
+        {/* Features Section */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
+          gap: "30px",
+          maxWidth: "800px",
+          margin: "0 auto" 
+        }}>
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "15px" }}>🎯</div>
+            <h3 style={{ marginBottom: "10px" }}>Personalized Plans</h3>
+            <p style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+              AI-generated training plans tailored to your goals and experience level
+            </p>
           </div>
-          <div 
-            className={`auth-tab ${!showLogin ? 'active' : ''}`}
-            onClick={() => setShowLogin(false)}
-          >
-            Sign Up
+          
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "15px" }}>💬</div>
+            <h3 style={{ marginBottom: "10px" }}>24/7 AI Coach</h3>
+            <p style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+              Get instant support, motivation, and advice whenever you need it
+            </p>
           </div>
+          
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "15px" }}>📊</div>
+            <h3 style={{ marginBottom: "10px" }}>Track Progress</h3>
+            <p style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+              Monitor your runs, see your improvement, and stay motivated
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Form Page
+  return (
+    <div className="auth-container">
+      <div className="auth-form">
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <h2 style={{ 
+            fontSize: "2.5rem", 
+            marginBottom: "10px",
+            background: "linear-gradient(135deg, #ffffff, #60a5fa)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            myCoach
+          </h2>
+          <p style={{ color: "rgba(255, 255, 255, 0.8)", marginBottom: "20px" }}>
+            {showLogin ? "Welcome back! Sign in to continue your training." : "Join thousands of runners achieving their goals."}
+          </p>
+          
+          <button 
+            onClick={handleBack}
+            style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255, 255, 255, 0.7)",
+              cursor: "pointer",
+              fontSize: "14px",
+              textDecoration: "underline"
+            }}
+          >
+            ← Back to main page
+          </button>
         </div>
 
         <div>
@@ -37,21 +121,26 @@ function Auth() {
 
         <div style={{ 
           textAlign: "center", 
-          marginTop: "30px", 
-          padding: "20px",
-          background: "rgba(37, 99, 235, 0.05)",
-          borderRadius: "12px",
-          border: "1px solid rgba(37, 99, 235, 0.1)"
+          marginTop: "30px",
+          padding: "20px 0",
+          borderTop: "1px solid rgba(255, 255, 255, 0.2)"
         }}>
-          <h3 style={{ margin: "0 0 10px 0", color: "var(--primary-blue)" }}>
-            Why Choose RunCoach AI?
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.9rem" }}>
-            <div>🎯 Personalized training plans</div>
-            <div>💬 24/7 AI coach support</div>
-            <div>📊 Progress tracking & analytics</div>
-            <div>🏆 Goal-oriented training</div>
-          </div>
+          <p style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+            {showLogin ? "Don't have an account? " : "Already have an account? "}
+            <button
+              onClick={() => setShowLogin(!showLogin)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#60a5fa",
+                cursor: "pointer",
+                fontWeight: "600",
+                textDecoration: "underline"
+              }}
+            >
+              {showLogin ? "Sign Up" : "Log In"}
+            </button>
+          </p>
         </div>
       </div>
     </div>
@@ -59,6 +148,3 @@ function Auth() {
 }
 
 export default Auth;
-
-
-
