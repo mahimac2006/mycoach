@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { addDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import Navigation from "./Navigation";
+import "./GlobalStyles.css";
 
 function Dashboard() {
   const [distance, setDistance] = useState("");
@@ -20,7 +21,6 @@ function Dashboard() {
     try {
       const runsRef = collection(db, "runs");
       
-      // Try with orderBy first
       try {
         const q = query(
           runsRef, 
@@ -36,7 +36,6 @@ function Dashboard() {
       } catch (orderByError) {
         console.log("OrderBy failed, trying without orderBy:", orderByError);
         
-        // Fallback: query without orderBy and sort manually
         const simpleQ = query(
           runsRef, 
           where("userId", "==", auth.currentUser.uid)
@@ -47,13 +46,11 @@ function Dashboard() {
           runs.push({ id: doc.id, ...doc.data() });
         });
         
-        // Sort manually by date
         runs.sort((a, b) => new Date(b.date) - new Date(a.date));
         setRecentRuns(runs.slice(0, 5));
       }
     } catch (error) {
       console.error("Error fetching runs:", error);
-      alert("Error loading runs. Check console for details.");
     } finally {
       setFetchingRuns(false);
     }
@@ -68,126 +65,110 @@ function Dashboard() {
 
     setLoading(true);
     try {
-      const runData = {
+      await addDoc(collection(db, "runs"), {
         userId: auth.currentUser.uid,
         date: new Date().toISOString().split("T")[0],
         distance: parseFloat(distance),
         duration: parseInt(duration),
         mood,
         timestamp: new Date()
-      };
+      });
       
-      console.log("Adding run:", runData); // Debug log
-      
-      await addDoc(collection(db, "runs"), runData);
-      
-      // Clear form
       setDistance("");
       setDuration("");
       setMood("happy");
-      
-      // Refresh recent runs
       await fetchRecentRuns();
-      
       alert("Run logged successfully!");
     } catch (error) {
       console.error("Error logging run:", error);
-      alert("Error logging run: " + error.message);
+      alert("Error logging run. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const containerStyle = {
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "20px"
-  };
-
-  const formStyle = {
-    backgroundColor: "#f9f9f9",
-    padding: "20px",
-    borderRadius: "10px",
-    marginBottom: "30px"
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "10px",
-    margin: "10px 0",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    fontSize: "16px"
-  };
-
-  const buttonStyle = {
-    width: "100%",
-    padding: "15px",
-    backgroundColor: loading ? "#ccc" : "#28a745",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "16px",
-    cursor: loading ? "not-allowed" : "pointer"
-  };
-
-  const runItemStyle = {
-    backgroundColor: "#fff",
-    padding: "15px",
-    margin: "10px 0",
-    borderRadius: "5px",
-    border: "1px solid #ddd",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
-  };
-
   return (
     <div>
       <Navigation />
-      <div style={containerStyle}>
-        <h2>Log Your Run</h2>
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <input 
-            type="number"
-            step="0.1"
-            placeholder="Distance (miles or km)" 
-            value={distance}
-            onChange={e => setDistance(e.target.value)} 
-            style={inputStyle}
-            required
-          />
-          <input 
-            type="number"
-            placeholder="Duration (minutes)" 
-            value={duration}
-            onChange={e => setDuration(e.target.value)} 
-            style={inputStyle}
-            required
-          />
-          <select 
-            value={mood}
-            onChange={e => setMood(e.target.value)}
-            style={inputStyle}
-          >
-            <option value="happy">Happy 😊</option>
-            <option value="tired">Tired 😴</option>
-            <option value="motivated">Motivated 💪</option>
-            <option value="challenged">Challenged 😤</option>
-            <option value="accomplished">Accomplished 🏆</option>
-          </select>
-          <button type="submit" disabled={loading} style={buttonStyle}>
-            {loading ? "Logging Run..." : "Log Run"}
-          </button>
-        </form>
+      <div className="page-container">
+        <h2 style={{ color: "white", marginBottom: "30px" }}>Log Your Run</h2>
+        
+        <div className="card">
+          <form onSubmit={handleSubmit}>
+            <input 
+              type="number"
+              step="0.1"
+              placeholder="Distance (miles or km)" 
+              value={distance}
+              onChange={e => setDistance(e.target.value)} 
+              className="form-input"
+              style={{ 
+                background: "white",
+                border: "1px solid #d1d5db",
+                color: "#1f2937"
+              }}
+              required
+            />
+            
+            <input 
+              type="number"
+              placeholder="Duration (minutes)" 
+              value={duration}
+              onChange={e => setDuration(e.target.value)} 
+              className="form-input"
+              style={{ 
+                background: "white",
+                border: "1px solid #d1d5db",
+                color: "#1f2937"
+              }}
+              required
+            />
+            
+            <select 
+              value={mood}
+              onChange={e => setMood(e.target.value)}
+              className="form-select"
+              style={{ 
+                background: "white",
+                border: "1px solid #d1d5db",
+                color: "#1f2937"
+              }}
+            >
+              <option value="happy">Happy 😊</option>
+              <option value="tired">Tired 😴</option>
+              <option value="motivated">Motivated 💪</option>
+              <option value="challenged">Challenged 😤</option>
+              <option value="accomplished">Accomplished 🏆</option>
+            </select>
+            
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="btn btn-primary btn-full"
+              style={{ marginTop: "20px" }}
+            >
+              {loading ? "Logging Run..." : "Log Run"}
+            </button>
+          </form>
+        </div>
 
-        <h3>Recent Runs</h3>
+        <h3 style={{ color: "white", marginBottom: "20px" }}>Recent Runs</h3>
+        
         {fetchingRuns ? (
-          <p style={{ textAlign: "center", color: "#666" }}>Loading runs...</p>
+          <div className="loading-container" style={{ height: "200px" }}>
+            <div className="loading-spinner"></div>
+            <p style={{ color: "white" }}>Loading runs...</p>
+          </div>
         ) : recentRuns.length > 0 ? (
           <div>
             {recentRuns.map((run) => (
-              <div key={run.id} style={runItemStyle}>
+              <div key={run.id} className="card" style={{ 
+                display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "center",
+                background: "white",
+                color: "#1f2937"
+              }}>
                 <div>
                   <strong>{run.date}</strong> - {run.distance} miles in {run.duration} minutes
                 </div>
@@ -202,18 +183,14 @@ function Dashboard() {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: "center", color: "#666", padding: "20px" }}>
+          <div className="card" style={{ 
+            textAlign: "center", 
+            background: "white",
+            color: "#6b7280"
+          }}>
             <p>No runs logged yet. Log your first run above!</p>
-            <p><small>If you just logged a run and don't see it, check the browser console for errors.</small></p>
           </div>
         )}
-
-        {/* Debug info */}
-        <div style={{ marginTop: "20px", padding: "10px", backgroundColor: "#f8f9fa", fontSize: "12px" }}>
-          <strong>Debug Info:</strong>
-          <br />Current User: {auth.currentUser?.uid}
-          <br />Total Runs Found: {recentRuns.length}
-        </div>
       </div>
     </div>
   );

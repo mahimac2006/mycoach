@@ -27,7 +27,6 @@ function Auth() {
       <div className="auth-container">
         <div className="auth-hero">
           <h1>myCoach</h1>
-          <p>Personalized training plans with 24/7 AI coach support</p>
           
           <div className="auth-buttons">
             <button 

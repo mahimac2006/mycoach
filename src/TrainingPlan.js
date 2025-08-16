@@ -209,7 +209,7 @@ function TrainingPlan() {
             </p>
           )}
           {parsedDays && (
-            <p style={{ color: "#28a745", fontWeight: "bold", margin: "10px 0 0 0" }}>
+            <p style={{ color: "#3b82f6", fontWeight: "bold", margin: "10px 0 0 0" }}>
               Progress: {completedDays.length} / {parsedDays.length} days completed
             </p>
           )}
@@ -279,15 +279,6 @@ function TrainingPlan() {
           <button onClick={fetchPlanAndProfile} style={refreshButtonStyle}>
             Refresh Plan
           </button>
-        </div>
-
-        {/* Debug info */}
-        <div style={{ marginTop: "30px", padding: "15px", backgroundColor: "#f8f9fa", borderRadius: "5px", fontSize: "12px", color: "#666" }}>
-          <strong>Debug Info:</strong><br />
-          Plan exists: {plan ? "Yes" : "No"}<br />
-          AI Generated: {planData?.generatedByAI ? "Yes" : "No"}<br />
-          Parsed days: {parsedDays ? parsedDays.length : 0}<br />
-          Last updated: {planData?.createdAt ? new Date(planData.createdAt).toLocaleString() : "Unknown"}
         </div>
       </div>
     </div>
