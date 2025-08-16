@@ -1,29 +1,82 @@
-// src/Login.js
-import { useState } from "react";
+import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 import { useNavigate } from "react-router-dom";
+import "./GlobalStyles.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCred => {
-        console.log("Logged in:", userCred.user);
-        navigate("/dashboard"); // redirect to dashboard after successful login
-      })
-      .catch(err => alert(err.message));
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Logged in:", userCred.user);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Log In</button>
-    </div>
+    <form onSubmit={handleLogin}>
+      {error && (
+        <div className="alert alert-error">
+          {error}
+        </div>
+      )}
+      
+      <input 
+        type="email"
+        placeholder="Email address"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        className="form-input"
+        disabled={loading}
+        required
+      />
+      
+      <input 
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        className="form-input"
+        disabled={loading}
+        required
+      />
+      
+      <button 
+        type="submit"
+        disabled={loading}
+        className="btn btn-primary btn-full"
+        style={{ marginTop: "10px" }}
+      >
+        {loading ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+            <div className="loading-spinner" style={{ width: "16px", height: "16px", borderWidth: "2px" }}></div>
+            Logging in...
+          </div>
+        ) : (
+          "Log In"
+        )}
+      </button>
+    </form>
   );
 }
 

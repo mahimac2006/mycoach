@@ -1,66 +1,44 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import "./GlobalStyles.css";
 
-function Navbar() {
+function Navigation() {
   const location = useLocation();
 
-  const navStyle = {
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    padding: "20px",
-    backgroundColor: "#f0f0f0",
-    borderBottom: "1px solid #ddd"
-  };
-
-  const linkStyle = {
-    textDecoration: "none",
-    padding: "10px 15px",
-    borderRadius: "5px",
-    color: "#333",
-    fontWeight: "bold"
-  };
-
-  const activeLinkStyle = {
-    ...linkStyle,
-    backgroundColor: "#007bff",
-    color: "white"
-  };
-
   return (
-    <nav style={navStyle}>
+    <nav className="navbar">
       <Link 
         to="/dashboard" 
-        style={location.pathname === "/dashboard" ? activeLinkStyle : linkStyle}
+        className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
       >
-        Dashboard
+        📊 Dashboard
       </Link>
       <Link 
         to="/chat" 
-        style={location.pathname === "/chat" ? activeLinkStyle : linkStyle}
+        className={`nav-link ${location.pathname === "/chat" ? "active" : ""}`}
       >
-        Chat with Coach
+        💬 Chat with Coach
       </Link>
       <Link 
         to="/progress" 
-        style={location.pathname === "/progress" ? activeLinkStyle : linkStyle}
+        className={`nav-link ${location.pathname === "/progress" ? "active" : ""}`}
       >
-        Progress Chart
+        📈 Progress Chart
       </Link>
       <Link 
         to="/training-plan" 
-        style={location.pathname === "/training-plan" ? activeLinkStyle : linkStyle}
+        className={`nav-link ${location.pathname === "/training-plan" ? "active" : ""}`}
       >
-        Training Plan
+        📋 Training Plan
       </Link>
       <Link 
         to="/account" 
-        style={location.pathname === "/account" ? activeLinkStyle : linkStyle}
+        className={`nav-link ${location.pathname === "/account" ? "active" : ""}`}
       >
-        Account
+        ⚙️ Account
       </Link>
     </nav>
   );
 }
 
-export default Navbar;
+export default Navigation;

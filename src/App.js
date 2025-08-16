@@ -1,4 +1,151 @@
-import React, { useEffect, useState } from "react";
+// Enhanced onboarding component
+function SimpleOnboarding() {
+  const [form, setForm] = useState({
+    age: "",
+    experience: "beginner",
+    goal: "",
+    coachStyle: "chill",
+    coachName: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    
+    console.log("Form submission started");
+    
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("No user logged in");
+      }
+
+      console.log("Saving user profile...");
+      
+      // Save user profile with a flag indicating this is a new signup
+      await setDoc(doc(db, "users", user.uid), {
+        ...form,
+        createdAt: new Date().toISOString(),
+        onboardingCompleted: true,
+        isNewUser: true // Flag to indicate this user just signed up
+      });
+
+      // Create a basic training plan (coach will generate a better one in chat)
+      const basicPlan = `Welcome ${form.coachName}! I'm your ${form.coachStyle} running coach, and I'm excited to help you achieve your goal of ${form.goal}.
+
+I'll create a personalized weekly training plan for you right now in our chat. Let's get started! 🏃‍♀️`;
+
+      await setDoc(doc(db, "trainingPlans", user.uid), {
+        planText: basicPlan,
+        createdAt: new Date().toISOString(),
+        completedDays: []
+      });
+
+      console.log("Profile and plan saved successfully");
+      
+      // Redirect new users to chat instead of dashboard
+      window.location.href = "/chat";
+      
+    } catch (error) {
+      console.error("Error during onboarding:", error);
+      setError("Error: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="form-container">
+        <div className="card-header">
+          <h2>Welcome! Let's set up your training 🏃‍♀️</h2>
+          <p style={{ margin: "10px 0 0 0", opacity: 0.8 }}>
+            Tell us about yourself to get a personalized plan
+          </p>
+        </div>
+        
+        {error && (
+          <div className="alert alert-error">
+            {error}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit}>
+          <input 
+            type="number"
+            placeholder="Your age" 
+            value={form.age}
+            onChange={e => setForm({...form, age: e.target.value})}
+            className="form-input"
+            required
+            disabled={loading}
+          />
+          
+          <select 
+            value={form.experience}
+            onChange={e => setForm({...form, experience: e.target.value})}
+            className="form-select"
+            disabled={loading}
+          >
+            <option value="beginner">Beginner (0-1 years)</option>
+            <option value="intermediate">Intermediate (1-3 years)</option>
+            <option value="advanced">Advanced (3+ years)</option>
+          </select>
+          
+          <input 
+            placeholder="Running goal (e.g., run a 5K, lose weight, marathon)"
+            value={form.goal}
+            onChange={e => setForm({...form, goal: e.target.value})}
+            className="form-input"
+            required
+            disabled={loading}
+          />
+          
+          <select 
+            value={form.coachStyle}
+            onChange={e => setForm({...form, coachStyle: e.target.value})}
+            className="form-select"
+            disabled={loading}
+          >
+            <option value="chill">Chill and Relaxed</option>
+            <option value="serious">Serious and Professional</option>
+            <option value="funny">Funny and Motivating</option>
+            <option value="supportive">Supportive and Encouraging</option>
+          </select>
+          
+          <input 
+            placeholder="What would you like to call your coach?"
+            value={form.coachName}
+            onChange={e => setForm({...form, coachName: e.target.value})}
+            className="form-input"
+            required
+            disabled={loading}
+          />
+          
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn btn-success btn-full"
+            style={{ marginTop: "20px" }}
+          >
+            {loading ? (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                <div className="loading-spinner" style={{ width: "16px", height: "16px", borderWidth: "2px" }}></div>
+                Setting up your account...
+              </div>
+            ) : (
+              "Meet My Coach! 💬"
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -10,6 +157,7 @@ import ChatCoach from "./ChatCoach";
 import ProgressChart from "./ProgressChart";
 import TrainingPlan from "./TrainingPlan";
 import Account from "./Account";
+import "./GlobalStyles.css";
 
 // Enhanced onboarding component
 function SimpleOnboarding() {

@@ -1,82 +1,104 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import "./GlobalStyles.css";
 
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); 
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSignup = async () => {
-    if (!email || !password) {
-      alert("Please fill in all fields");
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !password || !confirmPassword) {
+      setError("Please fill in all fields");
       return;
     }
 
     if (password.length < 6) {
-      alert("Password must be at least 6 characters long");
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
       return;
     }
 
     setLoading(true);
+    setError("");
+
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       console.log("Signed up:", userCred.user);
-      // Redirect new users to UserSetup instead of dashboard
-      navigate("/UserSetup"); 
-    } catch (error) {
-      console.error("Signup error:", error);
-      alert(error.message);
+      navigate("/onboarding");
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "10px",
-    margin: "10px 0",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    fontSize: "16px"
-  };
-
-  const buttonStyle = {
-    width: "100%",
-    padding: "15px",
-    backgroundColor: loading ? "#ccc" : "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "16px",
-    cursor: loading ? "not-allowed" : "pointer"
-  };
-
   return (
-    <div>
-      <h2>Sign Up</h2>
+    <form onSubmit={handleSignup}>
+      {error && (
+        <div className="alert alert-error">
+          {error}
+        </div>
+      )}
+      
       <input 
-        placeholder="Email" 
         type="email"
+        placeholder="Email address"
         value={email}
-        onChange={e => setEmail(e.target.value)} 
-        style={inputStyle}
+        onChange={e => setEmail(e.target.value)}
+        className="form-input"
         disabled={loading}
+        required
       />
+      
       <input 
-        placeholder="Password" 
-        type="password" 
+        type="password"
+        placeholder="Password (min 6 characters)"
         value={password}
-        onChange={e => setPassword(e.target.value)} 
-        style={inputStyle}
+        onChange={e => setPassword(e.target.value)}
+        className="form-input"
         disabled={loading}
+        required
       />
-      <button onClick={handleSignup} disabled={loading} style={buttonStyle}>
-        {loading ? "Creating Account..." : "Sign Up"}
+      
+      <input 
+        type="password"
+        placeholder="Confirm password"
+        value={confirmPassword}
+        onChange={e => setConfirmPassword(e.target.value)}
+        className="form-input"
+        disabled={loading}
+        required
+      />
+      
+      <button 
+        type="submit"
+        disabled={loading}
+        className="btn btn-success btn-full"
+        style={{ marginTop: "10px" }}
+      >
+        {loading ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+            <div className="loading-spinner" style={{ width: "16px", height: "16px", borderWidth: "2px" }}></div>
+            Creating account...
+          </div>
+        ) : (
+          "Create Account"
+        )}
       </button>
-    </div>
+    </form>
   );
 }
 
