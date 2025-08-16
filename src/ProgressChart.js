@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import Navigation from "./Navigation";
+import "./GlobalStyles.css";
 
 function ProgressChart() {
   const [runs, setRuns] = useState([]);
@@ -109,20 +110,20 @@ function ProgressChart() {
       
       return (
         <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "0 2px" }}>
-          <div style={{ fontSize: "10px", marginBottom: "5px", height: "20px" }}>
+          <div style={{ fontSize: "10px", marginBottom: "5px", height: "20px", color: "#374151" }}>
             {run.distance}
           </div>
           <div
             style={{
               width: `${width}px`,
               height: `${height}px`,
-              backgroundColor: "#007bff",
+              backgroundColor: "#3b82f6",
               borderRadius: "2px 2px 0 0",
               transition: "all 0.3s ease"
             }}
             title={`${run.date}: ${run.distance} miles in ${run.duration} minutes`}
           ></div>
-          <div style={{ fontSize: "8px", marginTop: "5px", transform: "rotate(-45deg)", transformOrigin: "center" }}>
+          <div style={{ fontSize: "8px", marginTop: "5px", transform: "rotate(-45deg)", transformOrigin: "center", color: "#6b7280" }}>
             {new Date(run.date).getMonth() + 1}/{new Date(run.date).getDate()}
           </div>
         </div>
@@ -141,19 +142,19 @@ function ProgressChart() {
       
       return (
         <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "0 2px" }}>
-          <div style={{ fontSize: "10px", marginBottom: "5px", height: "20px" }}>
+          <div style={{ fontSize: "10px", marginBottom: "5px", height: "20px", color: "#374151" }}>
             {run.duration}m
           </div>
           <div
             style={{
               width: `${width}px`,
               height: `${height}px`,
-              backgroundColor: "#28a745",
+              backgroundColor: "#10b981",
               borderRadius: "2px 2px 0 0"
             }}
             title={`${run.date}: ${run.distance} miles in ${run.duration} minutes`}
           ></div>
-          <div style={{ fontSize: "8px", marginTop: "5px", transform: "rotate(-45deg)", transformOrigin: "center" }}>
+          <div style={{ fontSize: "8px", marginTop: "5px", transform: "rotate(-45deg)", transformOrigin: "center", color: "#6b7280" }}>
             {new Date(run.date).getMonth() + 1}/{new Date(run.date).getDate()}
           </div>
         </div>
@@ -161,64 +162,14 @@ function ProgressChart() {
     });
   };
 
-  const containerStyle = {
-    maxWidth: "900px",
-    margin: "0 auto",
-    padding: "20px"
-  };
-
-  const controlsStyle = {
-    display: "flex",
-    justifyContent: "center",
-    gap: "10px",
-    marginBottom: "30px"
-  };
-
-  const buttonStyle = (active) => ({
-    padding: "10px 20px",
-    border: "1px solid #007bff",
-    backgroundColor: active ? "#007bff" : "white",
-    color: active ? "white" : "#007bff",
-    borderRadius: "5px",
-    cursor: "pointer"
-  });
-
-  const statsStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-    gap: "20px",
-    marginBottom: "30px"
-  };
-
-  const statItemStyle = {
-    backgroundColor: "#f8f9fa",
-    padding: "20px",
-    borderRadius: "10px",
-    textAlign: "center",
-    border: "1px solid #dee2e6"
-  };
-
-  const chartContainerStyle = {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    border: "1px solid #dee2e6",
-    marginBottom: "20px"
-  };
-
-  const chartStyle = {
-    display: "flex",
-    alignItems: "end",
-    justifyContent: "center",
-    height: "250px",
-    padding: "20px 0"
-  };
-
   if (loading) {
     return (
       <div>
         <Navigation />
-        <div style={{ textAlign: "center", padding: "50px" }}>Loading your progress...</div>
+        <div className="loading-container" style={{ height: "400px" }}>
+          <div className="loading-spinner"></div>
+          <div style={{ color: "white" }}>Loading your progress...</div>
+        </div>
       </div>
     );
   }
@@ -226,24 +177,29 @@ function ProgressChart() {
   return (
     <div>
       <Navigation />
-      <div style={containerStyle}>
-        <h2>Your Running Progress 📈</h2>
+      <div className="page-container">
+        <h2 style={{ color: "white", marginBottom: "30px" }}>Your Running Progress 📈</h2>
         
-        <div style={controlsStyle}>
+        <div style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+          marginBottom: "30px"
+        }}>
           <button 
-            style={buttonStyle(timeFrame === "week")}
+            className={timeFrame === "week" ? "btn btn-primary" : "btn btn-secondary"}
             onClick={() => setTimeFrame("week")}
           >
             Last Week
           </button>
           <button 
-            style={buttonStyle(timeFrame === "month")}
+            className={timeFrame === "month" ? "btn btn-primary" : "btn btn-secondary"}
             onClick={() => setTimeFrame("month")}
           >
             Last Month
           </button>
           <button 
-            style={buttonStyle(timeFrame === "year")}
+            className={timeFrame === "year" ? "btn btn-primary" : "btn btn-secondary"}
             onClick={() => setTimeFrame("year")}
           >
             Last Year
@@ -252,58 +208,122 @@ function ProgressChart() {
 
         {stats ? (
           <>
-            <div style={statsStyle}>
-              <div style={statItemStyle}>
-                <h3 style={{ color: "#007bff", margin: "0 0 10px 0" }}>{stats.totalRuns}</h3>
-                <p style={{ margin: 0 }}>Total Runs</p>
+            <div className="stats-grid" style={{ marginBottom: "30px" }}>
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "24px",
+                borderRadius: "12px",
+                textAlign: "center",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              }}>
+                <h3 style={{ color: "#3b82f6", margin: "0 0 10px 0", fontSize: "2rem" }}>{stats.totalRuns}</h3>
+                <p style={{ margin: 0, color: "#6b7280" }}>Total Runs</p>
               </div>
-              <div style={statItemStyle}>
-                <h3 style={{ color: "#28a745", margin: "0 0 10px 0" }}>{stats.totalDistance}</h3>
-                <p style={{ margin: 0 }}>Total Distance</p>
+              
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "24px",
+                borderRadius: "12px",
+                textAlign: "center",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              }}>
+                <h3 style={{ color: "#10b981", margin: "0 0 10px 0", fontSize: "2rem" }}>{stats.totalDistance}</h3>
+                <p style={{ margin: 0, color: "#6b7280" }}>Total Distance</p>
               </div>
-              <div style={statItemStyle}>
-                <h3 style={{ color: "#ffc107", margin: "0 0 10px 0" }}>{stats.totalTime}</h3>
-                <p style={{ margin: 0 }}>Total Minutes</p>
+              
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "24px",
+                borderRadius: "12px",
+                textAlign: "center",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              }}>
+                <h3 style={{ color: "#f59e0b", margin: "0 0 10px 0", fontSize: "2rem" }}>{stats.totalTime}</h3>
+                <p style={{ margin: 0, color: "#6b7280" }}>Total Minutes</p>
               </div>
-              <div style={statItemStyle}>
-                <h3 style={{ color: "#17a2b8", margin: "0 0 10px 0" }}>{stats.avgDistance}</h3>
-                <p style={{ margin: 0 }}>Avg Distance</p>
+              
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "24px",
+                borderRadius: "12px",
+                textAlign: "center",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              }}>
+                <h3 style={{ color: "#8b5cf6", margin: "0 0 10px 0", fontSize: "2rem" }}>{stats.avgDistance}</h3>
+                <p style={{ margin: 0, color: "#6b7280" }}>Avg Distance</p>
               </div>
-              <div style={statItemStyle}>
-                <h3 style={{ color: "#6f42c1", margin: "0 0 10px 0" }}>{stats.avgPace}</h3>
-                <p style={{ margin: 0 }}>Avg Pace (min/unit)</p>
+              
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "24px",
+                borderRadius: "12px",
+                textAlign: "center",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              }}>
+                <h3 style={{ color: "#ef4444", margin: "0 0 10px 0", fontSize: "2rem" }}>{stats.avgPace}</h3>
+                <p style={{ margin: 0, color: "#6b7280" }}>Avg Pace (min/unit)</p>
               </div>
             </div>
 
-            <div style={chartContainerStyle}>
-              <h3 style={{ textAlign: "center", marginBottom: "20px" }}>Distance Progress 🏃‍♀️</h3>
-              <div style={chartStyle}>
+            <div style={{
+              background: "rgba(255, 255, 255, 0.95)",
+              padding: "24px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              marginBottom: "24px",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+            }}>
+              <h3 style={{ textAlign: "center", marginBottom: "20px", color: "#1f2937" }}>Distance Progress 🏃‍♀️</h3>
+              <div style={{
+                display: "flex",
+                alignItems: "end",
+                justifyContent: "center",
+                height: "250px",
+                padding: "20px 0"
+              }}>
                 {createDistanceChart()}
               </div>
             </div>
 
-            <div style={chartContainerStyle}>
-              <h3 style={{ textAlign: "center", marginBottom: "20px" }}>Duration Progress ⏱️</h3>
-              <div style={chartStyle}>
+            <div style={{
+              background: "rgba(255, 255, 255, 0.95)",
+              padding: "24px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              marginBottom: "24px",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+            }}>
+              <h3 style={{ textAlign: "center", marginBottom: "20px", color: "#1f2937" }}>Duration Progress ⏱️</h3>
+              <div style={{
+                display: "flex",
+                alignItems: "end",
+                justifyContent: "center",
+                height: "250px",
+                padding: "20px 0"
+              }}>
                 {createDurationChart()}
               </div>
             </div>
           </>
         ) : (
-          <div style={{ textAlign: "center", padding: "50px", color: "#666" }}>
-            <h3>No runs found for the selected time period</h3>
+          <div style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            padding: "50px",
+            borderRadius: "12px",
+            textAlign: "center",
+            color: "#6b7280"
+          }}>
+            <h3 style={{ color: "#374151" }}>No runs found for the selected time period</h3>
             <p>Start logging your runs to see your progress!</p>
             <button 
               onClick={() => window.location.href = "/dashboard"}
-              style={{
-                padding: "15px 30px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                fontSize: "16px",
-                cursor: "pointer"
-              }}
+              className="btn btn-primary"
+              style={{ marginTop: "20px" }}
             >
               Log Your First Run
             </button>

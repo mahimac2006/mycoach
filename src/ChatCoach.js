@@ -3,6 +3,7 @@ import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import { getGeminiReply } from "./gemini";
 import Navigation from "./Navigation";
+import "./GlobalStyles.css";
 
 function ChatCoach() {
   const [messages, setMessages] = useState([]);
@@ -11,9 +12,9 @@ function ChatCoach() {
   const [userProfile, setUserProfile] = useState(null);
   const [apiKeyMissing, setApiKeyMissing] = useState(false);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
-    // Check if Gemini API key is available
     if (!process.env.REACT_APP_GEMINI_API_KEY) {
       setApiKeyMissing(true);
     }
@@ -26,23 +27,17 @@ function ChatCoach() {
         const profile = userDoc.data();
         setUserProfile(profile);
         
-        // Initialize chat with personalized system message
         const systemMessage = {
           role: "system",
           content: `You are ${profile.coachName}, a ${profile.coachStyle} running coach. The user is a ${profile.age}-year-old ${profile.experience} runner whose goal is: ${profile.goal}. Be encouraging, give specific advice, and maintain your ${profile.coachStyle} personality throughout the conversation.`
         };
         
-        // Check if this is a new user who needs a plan generated
         if (profile.isNewUser) {
-          // Auto-generate weekly plan for new users
           await generateWeeklyPlan(profile, systemMessage);
-          
-          // Mark user as no longer new
           await updateDoc(doc(db, "users", auth.currentUser.uid), {
             isNewUser: false
           });
         } else {
-          // Regular welcome message for existing users
           const welcomeMessage = {
             role: "assistant",
             content: `Hey there! I'm ${profile.coachName}, your ${profile.coachStyle} running coach. Great to see you back! How's your training going? Feel free to ask me anything about running, your plan, or if you need motivation!`
@@ -59,7 +54,6 @@ function ChatCoach() {
   const generateWeeklyPlan = async (profile, systemMessage) => {
     setIsGeneratingPlan(true);
     
-    // Special welcome message for new users
     const newUserWelcomeMessage = {
       role: "assistant",
       content: `Welcome! 🎉 I'm so excited to be your ${profile.coachStyle} running coach! 
@@ -67,34 +61,41 @@ function ChatCoach() {
 Let me create a personalized weekly training plan for you right now based on your goal of ${profile.goal}. Give me just a moment to design the perfect plan for a ${profile.experience} runner like yourself...`
     };
     
-    // Set initial messages
     setMessages([systemMessage, newUserWelcomeMessage]);
     
     try {
       console.log("Auto-generating weekly plan for new user...");
       
-      // Create a detailed prompt for plan generation
       const planGenerationPrompt = [
         systemMessage,
         {
           role: "user",
           content: `Please create a detailed weekly training plan for me. I'm a ${profile.age}-year-old ${profile.experience} runner and my goal is: ${profile.goal}. 
 
-Please include:
-- Specific activities for each day (Monday through Sunday)
-- Distance/time recommendations appropriate for my level
-- Rest days and cross-training suggestions
-- Any tips specific to my goal
+IMPORTANT: Please include ALL 7 days of the week (Monday through Sunday). Even if it's a rest day, please include it and specify "Rest day" or light activities.
+
+Please format your response EXACTLY like this:
+
+**Monday:** [specific activity or "Rest day"]
+**Tuesday:** [specific activity]  
+**Wednesday:** [specific activity or "Rest day"]
+**Thursday:** [specific activity]
+**Friday:** [specific activity or "Rest day"] 
+**Saturday:** [specific activity]
+**Sunday:** [specific activity or "Rest day"]
+
+For each day, include:
+- Specific activities (running, cross-training, rest)
+- Distance/time recommendations appropriate for my ${profile.experience} level
+- Any tips specific to my goal of ${profile.goal}
 - Make it personal and motivating in your ${profile.coachStyle} style
 
-Format it clearly with each day and what I should do. This will be my training plan!`
+Remember: Include ALL 7 days, even rest days!`
         }
       ];
       
-      // Generate the plan using Gemini
       const generatedPlan = await getGeminiReply(planGenerationPrompt);
       
-      // Save the generated plan to the training plans collection
       await setDoc(doc(db, "trainingPlans", auth.currentUser.uid), {
         planText: generatedPlan,
         createdAt: new Date().toISOString(),
@@ -102,7 +103,6 @@ Format it clearly with each day and what I should do. This will be my training p
         generatedByAI: true
       });
       
-      // Add the plan to the chat
       const planMessage = {
         role: "assistant",
         content: `Here's your personalized weekly training plan! 🏃‍♀️\n\n${generatedPlan}\n\nThis plan is now saved in your Training Plan section too! Feel free to ask me any questions about it, or if you want me to adjust anything. I'm here to help you succeed! 💪`
@@ -115,7 +115,6 @@ Format it clearly with each day and what I should do. This will be my training p
     } catch (error) {
       console.error("Error generating weekly plan:", error);
       
-      // Fallback message if plan generation fails
       const fallbackMessage = {
         role: "assistant",
         content: `Welcome! I'm having a little trouble generating your custom plan right now, but don't worry - I can still help you! 
@@ -174,71 +173,18 @@ What would you like to know about achieving your goal of ${profile.goal}?`
     }
   };
 
-  const containerStyle = {
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "20px"
-  };
-
-  const chatContainerStyle = {
-    height: "500px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    padding: "20px",
-    overflowY: "scroll",
-    backgroundColor: "#f9f9f9",
-    marginBottom: "20px"
-  };
-
-  const messageStyle = (role) => ({
-    marginBottom: "15px",
-    padding: "10px",
-    borderRadius: "10px",
-    backgroundColor: role === "user" ? "#007bff" : "#e9ecef",
-    color: role === "user" ? "white" : "#333",
-    alignSelf: role === "user" ? "flex-end" : "flex-start",
-    maxWidth: "80%",
-    marginLeft: role === "user" ? "auto" : "0",
-    marginRight: role === "user" ? "0" : "auto",
-    whiteSpace: "pre-line" // Preserve line breaks in messages
-  });
-
-  const inputContainerStyle = {
-    display: "flex",
-    gap: "10px"
-  };
-
-  const inputStyle = {
-    flex: "1",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    fontSize: "16px"
-  };
-
-  const buttonStyle = {
-    padding: "10px 20px",
-    backgroundColor: loading ? "#ccc" : "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: loading ? "not-allowed" : "pointer"
-  };
-
   if (apiKeyMissing) {
     return (
       <div>
         <Navigation />
-        <div style={containerStyle}>
-          <h2>Chat with Your Coach</h2>
-          <div style={{ 
-            padding: "20px", 
-            backgroundColor: "#fff3cd", 
-            border: "1px solid #ffeaa7", 
-            borderRadius: "10px",
-            textAlign: "center"
+        <div className="page-container">
+          <h2 style={{ color: "white", marginBottom: "30px" }}>Chat with Your Coach</h2>
+          <div className="card" style={{ 
+            textAlign: "center",
+            background: "rgba(255, 255, 255, 0.95)",
+            color: "#1f2937"
           }}>
-            <h3>⚠️ API Key Required</h3>
+            <h3 style={{ color: "#f59e0b" }}>⚠️ API Key Required</h3>
             <p>To use the chat feature, you need to set up your Gemini API key.</p>
             <p>Get your free API key from: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a></p>
           </div>
@@ -250,16 +196,18 @@ What would you like to know about achieving your goal of ${profile.goal}?`
   return (
     <div>
       <Navigation />
-      <div style={containerStyle}>
-        <h2>Chat with {userProfile?.coachName || "Your Coach"} 🏃‍♀️</h2>
+      <div className="page-container">
+        <h2 style={{ color: "white", marginBottom: "30px" }}>
+          Chat with {userProfile?.coachName || "Your Coach"} 🏃‍♀️
+        </h2>
         
         {isGeneratingPlan && (
           <div style={{ 
-            backgroundColor: "#d4edda", 
-            border: "1px solid #c3e6cb", 
-            color: "#155724",
-            padding: "10px", 
-            borderRadius: "5px", 
+            background: "rgba(34, 197, 94, 0.2)",
+            border: "1px solid rgba(34, 197, 94, 0.3)",
+            color: "#bbf7d0",
+            padding: "15px", 
+            borderRadius: "8px", 
             marginBottom: "20px",
             textAlign: "center"
           }}>
@@ -267,36 +215,79 @@ What would you like to know about achieving your goal of ${profile.goal}?`
           </div>
         )}
         
-        <div style={chatContainerStyle}>
-          {messages.slice(1).map((message, index) => ( // Skip system message
-            <div key={index} style={messageStyle(message.role)}>
-              <strong>{message.role === "user" ? "You" : userProfile?.coachName || "Coach"}:</strong>
-              <p style={{ margin: "5px 0 0 0" }}>{message.content}</p>
+        <div style={{
+          background: "rgba(255, 255, 255, 0.95)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          borderRadius: "12px",
+          height: "500px",
+          padding: "20px",
+          overflowY: "auto",
+          marginBottom: "20px",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+        }}>
+          {messages.slice(1).map((message, index) => (
+            <div key={index} style={{
+              marginBottom: "15px",
+              padding: "12px 16px",
+              borderRadius: message.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+              backgroundColor: message.role === "user" ? "#3b82f6" : "#f3f4f6",
+              color: message.role === "user" ? "white" : "#1f2937",
+              maxWidth: "80%",
+              marginLeft: message.role === "user" ? "auto" : "0",
+              marginRight: message.role === "user" ? "0" : "auto",
+              whiteSpace: "pre-line"
+            }}>
+              <strong style={{ color: message.role === "user" ? "white" : "#374151" }}>
+                {message.role === "user" ? "You" : userProfile?.coachName || "Coach"}:
+              </strong>
+              <p style={{ 
+                margin: "5px 0 0 0", 
+                color: message.role === "user" ? "white" : "#1f2937",
+                lineHeight: "1.5"
+              }}>
+                {message.content}
+              </p>
             </div>
           ))}
           {(loading || isGeneratingPlan) && (
-            <div style={messageStyle("assistant")}>
-              <strong>{userProfile?.coachName || "Coach"}:</strong>
-              <p style={{ margin: "5px 0 0 0" }}>
+            <div style={{
+              marginBottom: "15px",
+              padding: "12px 16px",
+              borderRadius: "16px 16px 16px 4px",
+              backgroundColor: "#f3f4f6",
+              color: "#1f2937",
+              maxWidth: "80%"
+            }}>
+              <strong style={{ color: "#374151" }}>{userProfile?.coachName || "Coach"}:</strong>
+              <p style={{ margin: "5px 0 0 0", color: "#1f2937" }}>
                 {isGeneratingPlan ? "Creating your perfect training plan... 🎯" : "Thinking... 🤔"}
               </p>
             </div>
           )}
         </div>
 
-        <div style={inputContainerStyle}>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask your coach anything..."
-            style={inputStyle}
+            style={{
+              flex: "1",
+              padding: "14px 16px",
+              background: "white",
+              border: "2px solid #d1d5db",
+              borderRadius: "25px",
+              color: "#1f2937",
+              fontSize: "16px"
+            }}
             disabled={loading || isGeneratingPlan}
           />
           <button 
             onClick={handleSend} 
             disabled={loading || isGeneratingPlan || !input.trim()} 
-            style={buttonStyle}
+            className="btn btn-primary"
+            style={{ borderRadius: "25px", padding: "14px 24px" }}
           >
             {loading ? "..." : "Send"}
           </button>

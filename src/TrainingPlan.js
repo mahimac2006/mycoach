@@ -197,14 +197,14 @@ function TrainingPlan() {
       <Navigation />
       <div style={containerStyle}>
         <div style={headerStyle}>
-          <h2>Your Training Plan</h2>
+          <h2 style={{ color: "white" }}>Your Training Plan</h2>
           {userProfile && (
-            <p style={{ color: "#666", margin: "10px 0 0 0" }}>
+            <p style={{ color: "rgba(255, 255, 255, 0.8)", margin: "10px 0 0 0" }}>
               Designed by {userProfile.coachName} for your goal: {userProfile.goal}
             </p>
           )}
           {planData?.generatedByAI && (
-            <p style={{ color: "#28a745", fontWeight: "bold", margin: "10px 0 0 0" }}>
+            <p style={{ color: "#60a5fa", fontWeight: "bold", margin: "10px 0 0 0" }}>
               ✨ AI-Generated Personalized Plan
             </p>
           )}
@@ -222,9 +222,13 @@ function TrainingPlan() {
               const isCompleted = completedDays.includes(dayKey);
               
               return (
-                <div key={index} style={dayCardStyle}>
+                <div key={index} style={{
+                  ...dayCardStyle,
+                  background: "rgba(255, 255, 255, 0.95)",
+                  color: "#1f2937"
+                }}>
                   <div style={dayHeaderStyle(isCompleted)}>
-                    <h3 style={{ margin: 0, color: isCompleted ? "#155724" : "#333" }}>
+                    <h3 style={{ margin: 0, color: isCompleted ? "#155724" : "#1f2937" }}>
                       {dayData.day}
                     </h3>
                     <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
@@ -234,7 +238,7 @@ function TrainingPlan() {
                         onChange={() => toggleDayCompletion(dayKey)}
                         style={checkboxStyle}
                       />
-                      <span style={{ fontWeight: "bold" }}>
+                      <span style={{ fontWeight: "bold", color: isCompleted ? "#155724" : "#1f2937" }}>
                         {isCompleted ? "Completed ✅" : "Mark as Complete"}
                       </span>
                     </label>
@@ -242,12 +246,18 @@ function TrainingPlan() {
                   <div>
                     {dayData.activities.length > 0 ? (
                       dayData.activities.map((activity, actIndex) => (
-                        <div key={actIndex} style={activityStyle}>
+                        <div key={actIndex} style={{
+                          ...activityStyle,
+                          color: "#374151"
+                        }}>
                           {activity}
                         </div>
                       ))
                     ) : (
-                      <div style={activityStyle}>
+                      <div style={{
+                        ...activityStyle,
+                        color: "#6b7280"
+                      }}>
                         <em>Rest day or no specific activities planned</em>
                       </div>
                     )}
@@ -258,15 +268,19 @@ function TrainingPlan() {
           </div>
         ) : (
           <div>
-            <div style={plainTextStyle}>
+            <div style={{
+              ...plainTextStyle,
+              background: "rgba(255, 255, 255, 0.95)",
+              color: "#1f2937"
+            }}>
               {plan}
             </div>
             {plan.includes("No training plan found") && (
               <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <p>Don't have a plan yet? Chat with your coach to get one!</p>
+                <p style={{ color: "white" }}>Don't have a plan yet? Chat with your coach to get one!</p>
                 <button 
                   onClick={() => window.location.href = "/chat"}
-                  style={refreshButtonStyle}
+                  className="btn btn-primary"
                 >
                   Chat with Coach
                 </button>
@@ -276,7 +290,7 @@ function TrainingPlan() {
         )}
 
         <div style={{ textAlign: "center", marginTop: "30px" }}>
-          <button onClick={fetchPlanAndProfile} style={refreshButtonStyle}>
+          <button onClick={fetchPlanAndProfile} className="btn btn-primary">
             Refresh Plan
           </button>
         </div>
