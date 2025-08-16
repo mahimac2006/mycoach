@@ -197,10 +197,10 @@ function TrainingPlan() {
       <Navigation />
       <div style={containerStyle}>
         <div style={headerStyle}>
-          <h2 style={{ color: "black" }}>Your Training Plan</h2>
+          <h2 style={{ color: "black" }}>Your Weekly Training Plan</h2>
           {userProfile && (
             <p style={{ color: "black", margin: "10px 0 0 0" }}>
-              Designed by {userProfile.coachName} for your goal: {userProfile.goal}
+              Designed by your personal coach {userProfile.coachName} 
             </p>
           )}
           
