@@ -60,18 +60,19 @@ function ChatCoach() {
   const generateWeeklyPlan = async (profile, systemMessage) => {
     setIsGeneratingPlan(true);
     
-    try {
-      console.log("Auto-generating weekly plan for new user...");
-      
-      // Special welcome message for new users
-      const newUserWelcomeMessage = {
-        role: "assistant",
-        content: `Welcome! 🎉 I'm so excited to be your ${profile.coachStyle} running coach! 
+    // Special welcome message for new users
+    const newUserWelcomeMessage = {
+      role: "assistant",
+      content: `Welcome! 🎉 I'm so excited to be your ${profile.coachStyle} running coach! 
 
 Let me create a personalized weekly training plan for you right now based on your goal of ${profile.goal}. Give me just a moment to design the perfect plan for a ${profile.experience} runner like yourself...`
-      };
-      
-      setMessages([systemMessage, newUserWelcomeMessage]);
+    };
+    
+    // Set initial messages
+    setMessages([systemMessage, newUserWelcomeMessage]);
+    
+    try {
+      console.log("Auto-generating weekly plan for new user...");
       
       // Create a detailed prompt for plan generation
       const planGenerationPrompt = [
