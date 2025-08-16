@@ -64,14 +64,14 @@ function ChatCoach() {
       console.log("Auto-generating weekly plan for new user...");
       
       // Special welcome message for new users
-      const welcomeMessage = {
+      const newUserWelcomeMessage = {
         role: "assistant",
-        content: `Welcome ${profile.coachName}! 🎉 I'm so excited to be your ${profile.coachStyle} running coach! 
+        content: `Welcome! 🎉 I'm so excited to be your ${profile.coachStyle} running coach! 
 
 Let me create a personalized weekly training plan for you right now based on your goal of ${profile.goal}. Give me just a moment to design the perfect plan for a ${profile.experience} runner like yourself...`
       };
       
-      setMessages([systemMessage, welcomeMessage]);
+      setMessages([systemMessage, newUserWelcomeMessage]);
       
       // Create a detailed prompt for plan generation
       const planGenerationPrompt = [
@@ -108,7 +108,7 @@ Format it clearly with each day and what I should do. This will be my training p
         content: `Here's your personalized weekly training plan! 🏃‍♀️\n\n${generatedPlan}\n\nThis plan is now saved in your Training Plan section too! Feel free to ask me any questions about it, or if you want me to adjust anything. I'm here to help you succeed! 💪`
       };
       
-      setMessages([systemMessage, welcomeMessage, planMessage]);
+      setMessages([systemMessage, newUserWelcomeMessage, planMessage]);
       
       console.log("Weekly plan generated and saved successfully");
       
@@ -125,7 +125,7 @@ Ask me anything about running, training, or your goals, and I'll give you person
 What would you like to know about achieving your goal of ${profile.goal}?`
       };
       
-      setMessages([systemMessage, welcomeMessage, fallbackMessage]);
+      setMessages([systemMessage, newUserWelcomeMessage, fallbackMessage]);
     } finally {
       setIsGeneratingPlan(false);
     }
