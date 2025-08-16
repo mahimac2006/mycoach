@@ -197,17 +197,13 @@ function TrainingPlan() {
       <Navigation />
       <div style={containerStyle}>
         <div style={headerStyle}>
-          <h2 style={{ color: "white" }}>Your Training Plan</h2>
+          <h2 style={{ color: "black" }}>Your Training Plan</h2>
           {userProfile && (
-            <p style={{ color: "rgba(255, 255, 255, 0.8)", margin: "10px 0 0 0" }}>
+            <p style={{ color: "black", margin: "10px 0 0 0" }}>
               Designed by {userProfile.coachName} for your goal: {userProfile.goal}
             </p>
           )}
-          {planData?.generatedByAI && (
-            <p style={{ color: "#60a5fa", fontWeight: "bold", margin: "10px 0 0 0" }}>
-              ✨ AI-Generated Personalized Plan
-            </p>
-          )}
+          
           {parsedDays && (
             <p style={{ color: "#3b82f6", fontWeight: "bold", margin: "10px 0 0 0" }}>
               Progress: {completedDays.length} / {parsedDays.length} days completed
