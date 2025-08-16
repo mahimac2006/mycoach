@@ -99,7 +99,8 @@ function Account() {
   const containerStyle = {
     maxWidth: "600px",
     margin: "0 auto",
-    padding: "20px"
+    padding: "20px",
+    color: "#000"
   };
 
   const cardStyle = {
@@ -108,7 +109,8 @@ function Account() {
     borderRadius: "10px",
     padding: "30px",
     marginBottom: "20px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    color: "#000"
   };
 
   const inputStyle = {
@@ -151,7 +153,8 @@ function Account() {
     padding: "10px 0",
     borderBottom: "1px solid #eee",
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    color: "#000"
   };
 
   if (loading) {
