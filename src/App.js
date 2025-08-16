@@ -39,25 +39,18 @@ function SimpleOnboarding() {
 
       console.log("Saving user profile...");
       
-      // Save user profile
+      // Save user profile with a flag indicating this is a new signup
       await setDoc(doc(db, "users", user.uid), {
         ...form,
         createdAt: new Date().toISOString(),
-        onboardingCompleted: true // Add this flag
+        onboardingCompleted: true,
+        isNewUser: true // Flag to indicate this user just signed up
       });
 
-      // Create basic training plan
-      const basicPlan = `Welcome ${form.coachName}! Here's your personalized ${form.experience} level plan for: ${form.goal}
+      // Create a basic training plan (coach will generate a better one in chat)
+      const basicPlan = `Welcome ${form.coachName}! I'm your ${form.coachStyle} running coach, and I'm excited to help you achieve your goal of ${form.goal}.
 
-Monday: Rest day or light stretching
-Tuesday: Easy 20-30 minute run
-Wednesday: Cross training (swimming, cycling, or yoga)
-Thursday: Easy 20-30 minute run  
-Friday: Rest day
-Saturday: Longer run (30-45 minutes)
-Sunday: Rest or easy walk
-
-Remember to listen to your body and adjust as needed. You've got this! 🏃‍♀️`;
+I'll create a personalized weekly training plan for you right now in our chat. Let's get started! 🏃‍♀️`;
 
       await setDoc(doc(db, "trainingPlans", user.uid), {
         planText: basicPlan,
@@ -67,8 +60,8 @@ Remember to listen to your body and adjust as needed. You've got this! 🏃‍�
 
       console.log("Profile and plan saved successfully");
       
-      // Force a page refresh to update the auth state
-      window.location.href = "/dashboard";
+      // Redirect new users to chat instead of dashboard
+      window.location.href = "/chat";
       
     } catch (error) {
       console.error("Error during onboarding:", error);
@@ -161,7 +154,7 @@ Remember to listen to your body and adjust as needed. You've got this! 🏃‍�
             cursor: loading ? "not-allowed" : "pointer"
           }}
         >
-          {loading ? "Setting up your account..." : "Let's Start Training! 🚀"}
+          {loading ? "Setting up your account..." : "Meet My Coach! 💬"}
         </button>
       </form>
     </div>
