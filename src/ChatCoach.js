@@ -11,7 +11,6 @@ function ChatCoach() {
   const [userProfile, setUserProfile] = useState(null);
   const [apiKeyMissing, setApiKeyMissing] = useState(false);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
-
   useEffect(() => {
     fetchUserProfile();
     // Check if Gemini API key is available
