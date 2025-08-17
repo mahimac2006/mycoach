@@ -1,9 +1,7 @@
 myCoach
-
 An AI-powered running coach that provides personalized training plans to help you achieve your running goals.
 
 Features:
-
 Secure Authentication - Secure user accounts with Firebase.
 
 Personalized Training Plans - Get custom running plans tailored to your experience level and goals.
@@ -17,7 +15,6 @@ Live Demo:
 Visit the app: mycoach-mahima-chaudharys-projects-9fe5d9e2.vercel.app
 
 Built With:
-
 React - Frontend framework
 
 Firebase - Authentication and database
