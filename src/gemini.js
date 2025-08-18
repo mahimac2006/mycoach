@@ -5,7 +5,7 @@ export const getGeminiReply = async (messages) => {
     console.log("Calling Gemini API...");
     console.log("Gemini API Key available:", !!process.env.REACT_APP_GEMINI_API_KEY);
     
-    // Convert OpenAI message format to Gemini format
+   
     const lastMessage = messages[messages.length - 1];
     const systemMessage = messages.find(msg => msg.role === 'system');
     

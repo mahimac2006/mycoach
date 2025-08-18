@@ -7,7 +7,7 @@ export const generatePlan = async (formData) => {
     const res = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-3.5-turbo", // Changed from gpt-4 to gpt-3.5-turbo
+        model: "gpt-3.5-turbo", 
         messages: [
           {
             role: "system",

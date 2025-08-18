@@ -98,7 +98,7 @@ function ProgressChart() {
 
   const stats = calculateStats();
 
-  // Create simple charts using CSS and divs (no external library needed)
+  // Create simple charts using CSS and divs
   const createDistanceChart = () => {
     if (runs.length === 0) return null;
     
