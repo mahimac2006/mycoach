@@ -12,10 +12,6 @@ AI Coach - Chat with your AI running coach anytime for motivation, advice, and s
 
 Progress Tracking - Log runs and monitor your runs to see your improvement over time.
 
-Live Demo🌟
-
-Visit the website: mycoach-git-main-mahima-chaudharys-projects-9fe5d9e2.vercel.app
-
 Built With🌟
 
 React - Frontend framework
