@@ -1,8 +1,8 @@
-myCoach🌟
+myCoach:
 
 An AI-powered running coach that provides personalized training plans to help you achieve your running goals.
 
-Features🌟
+Features:
 
 Secure Authentication - Secure user accounts with Firebase.
 
@@ -12,7 +12,7 @@ AI Coach - Chat with your AI running coach anytime for motivation, advice, and s
 
 Progress Tracking - Log runs and monitor your runs to see your improvement over time.
 
-Built With🌟
+Built With:
 
 React - Frontend framework
 
